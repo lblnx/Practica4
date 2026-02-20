@@ -1,57 +1,96 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import cloudflareLogo from './assets/Cloudflare_Logo.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [name, setName] = useState('unknown')
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [currentUser, setCurrentUser] = useState('')
+  const [error, setError] = useState('')
+
+  const handleLogin = (e) => {
+    e.preventDefault()
+    setError('')
+
+    // Validación básica
+    if (!username.trim() || !password.trim()) {
+      setError('Por favor completa todos los campos')
+      return
+    }
+
+    if (password.length < 4) {
+      setError('La contraseña debe tener al menos 4 caracteres')
+      return
+    }
+
+    // Login exitoso
+    setIsLoggedIn(true)
+    setCurrentUser(username)
+    setUsername('')
+    setPassword('')
+  }
+
+  const handleLogout = () => {
+    setIsLoggedIn(false)
+    setCurrentUser('')
+    setError('')
+  }
 
   return (
-    <>
-      <div>
-        <a href='https://vite.dev' target='_blank'>
-          <img src={viteLogo} className='logo' alt='Vite logo' />
-        </a>
-        <a href='https://react.dev' target='_blank'>
-          <img src={reactLogo} className='logo react' alt='React logo' />
-        </a>
-        <a href='https://workers.cloudflare.com/' target='_blank'>
-          <img src={cloudflareLogo} className='logo cloudflare' alt='Cloudflare logo' />
-        </a>
-      </div>
-      <h1>Vite + React + Cloudflare</h1>
-      <div className='card'>
-        <button
-          onClick={() => setCount((count) => count + 1)}
-          aria-label='increment'
-        >
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <div className='card'>
-        <button
-          onClick={() => {
-            fetch('/api/')
-              .then((res) => res.json())
-              .then((data) => setName(data.name))
-          }}
-          aria-label='get name'
-        >
-          Name from API is: {name}
-        </button>
-        <p>
-          Edit <code>worker/index.js</code> to change the name
-        </p>
-      </div>
-      <p className='read-the-docs'>
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className='app-container'>
+      {!isLoggedIn ? (
+        <div className='login-container'>
+          <div className='login-card'>
+            <h1>Iniciar Sesión</h1>
+            <form onSubmit={handleLogin}>
+              <div className='form-group'>
+                <label htmlFor='username'>Usuario:</label>
+                <input
+                  type='text'
+                  id='username'
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder='Ingresa tu usuario'
+                  required
+                />
+              </div>
+
+              <div className='form-group'>
+                <label htmlFor='password'>Contraseña:</label>
+                <input
+                  type='password'
+                  id='password'
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder='Ingresa tu contraseña'
+                  required
+                />
+              </div>
+
+              {error && <p className='error-message'>{error}</p>}
+
+              <button type='submit' className='login-button'>
+                Entrar
+              </button>
+            </form>
+            <p className='info-text'>
+              Prueba con cualquier usuario y contraseña (mínimo 4 caracteres)
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className='dashboard-container'>
+          <div className='dashboard-card'>
+            <h1>¡Bienvenido!</h1>
+            <p className='welcome-text'>Hola, <strong>{currentUser}</strong></p>
+            <p>Has iniciado sesión correctamente.</p>
+            <button onClick={handleLogout} className='logout-button'>
+              Cerrar Sesión
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
